@@ -1,0 +1,13 @@
+[submodule "geodude_description"]
+	path = geodude_description
+	url = ../geodude_description.git
+	branch = main
+	ignore = all
+[submodule "geodude_moveit"]
+	path = geodude_moveit
+	url = ../geodude_moveit.git
+	branch = main
+	ignore = all
+[submodule "camera_calibration"]
+	path = camera_calibration
+	url = git@github.com:personalrobotics/camera_calibration.git

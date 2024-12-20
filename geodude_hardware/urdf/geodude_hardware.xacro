@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:xacro="http://www.ros.org/wiki/xacro" name="geodude">
+
+  <xacro:include filename="$(find geodude_description)/robots/geodude.urdf.xacro"/>
+  <xacro:include filename="$(find geodude_hardware)/urdf/vention.ros2_control.xacro"/>
+  <xacro:include filename="$(find geodude_hardware)/urdf/barrett.ros2_control.xacro"/>
+
+  <!-- Args are set to false by default so that it launches the mock interface, note that 
+  these are overriden by the defaults in the launch file and those defaults can be overriden 
+  by the user from the command line -->
+  <xacro:arg name="left_arm" default="false" />
+  <xacro:arg name="right_arm" default="false" />
+  <xacro:arg name="use_vention" default="false" />
+  <xacro:arg name="sim" default="mock" />
+  <xacro:arg name="left_hand" default="false" />
+  <xacro:arg name="right_hand" default="false" />
+  <xacro:arg name="move_to_initial_joint_position" default="false" />
+
+  <!-- Instantiate BarrettHWLeft if 'use_left/left_arm:=true' -->
+  <xacro:if value="$(arg left_arm)">
+    <xacro:barrett_hardware_interface
+      name="BarrettHWLeft" wam_config_file="$(find geodude_hardware)/config/left_wam7w/default.conf" prefix="left" sim="$(arg sim)" initial_positions_file="$(find geodude_hardware)/urdf/initial_mock_positions_left.yaml" hand="$(arg left_hand)" arm="$(arg left_arm)" move_to_initial_joint_position="$(arg move_to_initial_joint_position)" />      
+  </xacro:if>
+  <!-- Instantiate BarrettHWLeftMock if 'use_left/left_arm:=false' -->
+  <xacro:unless value="$(arg left_arm)">
+    <xacro:barrett_hardware_interface
+      name="BarrettHWLeftMock" wam_config_file="$(find geodude_hardware)/config/right_wam7w/default.conf" prefix="left" sim="mock" initial_positions_file="$(find geodude_hardware)/urdf/initial_mock_positions_right.yaml" hand="true" arm="true"/>
+  </xacro:unless>
+
+  <!-- Instantiate BarrettHWRight if 'use_right/right_arm:=true' -->
+  <xacro:if value="$(arg right_arm)">
+    <xacro:barrett_hardware_interface
+      name="BarrettHWRight" wam_config_file="$(find geodude_hardware)/config/right_wam7w/default.conf" prefix="right" sim="$(arg sim)" initial_positions_file="$(find geodude_hardware)/urdf/initial_mock_positions_right.yaml" hand="$(arg right_hand)" arm="$(arg right_arm)" move_to_initial_joint_position="$(arg move_to_initial_joint_position)" />
+  </xacro:if>
+  <!-- Instantiate BarrettHWRightMock if 'use_right/right_arm:=false' -->
+  <xacro:unless value="$(arg right_arm)">
+    <xacro:barrett_hardware_interface
+      name="BarrettHWRightMock" wam_config_file="$(find geodude_hardware)/config/right_wam7w/default.conf" prefix="right" sim="mock" initial_positions_file="$(find geodude_hardware)/urdf/initial_mock_positions_right.yaml" hand="true" arm="true"/>
+  </xacro:unless>
+
+  <!-- Instantiate VentionHW if 'use_vention:=true' -->
+  <xacro:if value="$(arg use_vention)">
+    <xacro:vention_hardware_interface
+      name="VentionHW" sim="$(arg sim)" initial_positions_file="$(find geodude_hardware)/urdf/initial_mock_positions_vention.yaml" />
+  </xacro:if>
+  <!-- Instantiate VentionHWMock if 'use_vention:=false' -->
+  <xacro:unless value="$(arg use_vention)">
+    <xacro:vention_hardware_interface
+      name="VentionHWMock" sim="mock" initial_positions_file="$(find geodude_hardware)/urdf/initial_mock_positions_vention.yaml" />
+  </xacro:unless>
+
+</robot>

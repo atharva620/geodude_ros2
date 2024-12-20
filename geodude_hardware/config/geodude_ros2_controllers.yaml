@@ -1,0 +1,373 @@
+controller_manager:
+  ros__parameters:
+
+    update_rate: 500  # Hz
+
+    # Manually set components to active state if using the below param
+    # hardware_components_initial_state:
+    #   inactive:
+    #     - "BarrettHWRight"
+    #     - "BarrettHWLeft"
+
+    left_arm_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    right_arm_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    left_arm_feedforward_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    right_arm_feedforward_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    left_hand_effort_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    right_hand_effort_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    left_hand_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    right_hand_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    vention_feedforward_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    vention_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    # Commenting joint_state_broadcaster out because enabling this will start reading 
+    # the joint states for every exported state interface. For example, 
+    # this will trigger hand reading that can interfere with the arm
+    # motion. Instead we use separate joint state broadcasters for
+    # the arm and hand.
+
+    # joint_state_broadcaster:
+    #   type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_state_broadcaster_right_arm:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_state_broadcaster_right_hand:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    
+    joint_state_broadcaster_left_arm:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_state_broadcaster_left_hand:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_state_broadcaster_vention:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+# Makes it so it publishes 0 if hands are disabled
+# joint_state_broadcaster:
+#   ros__parameters:
+#     extra_joints:
+#       - left_j01
+#       - left_j11
+#       - left_j21
+#       - left_j00
+#       - right_j01
+#       - right_j11
+#       - right_j21
+#       - right_j00
+
+joint_state_broadcaster_right_arm:
+  ros__parameters:
+    interfaces: 
+      - position
+      - velocity
+      - effort
+    joints: 
+      - right_j1
+      - right_j2
+      - right_j3
+      - right_j4
+      - right_j5
+      - right_j6
+      - right_j7
+
+joint_state_broadcaster_right_hand:
+  ros__parameters:
+    interfaces: 
+      - position
+      - velocity
+      - effort
+    joints: 
+      - right_j01
+      - right_j11
+      - right_j21
+      - right_j00
+
+joint_state_broadcaster_left_arm:
+  ros__parameters:
+    interfaces: 
+      - position
+      - velocity
+      - effort
+    joints: 
+      - left_j1
+      - left_j2
+      - left_j3
+      - left_j4
+      - left_j5
+      - left_j6
+      - left_j7
+
+joint_state_broadcaster_left_hand:
+  ros__parameters:
+    interfaces: 
+      - position
+      - velocity
+      - effort
+    joints: 
+      - left_j01
+      - left_j11
+      - left_j21
+      - left_j00
+
+joint_state_broadcaster_vention:
+  ros__parameters:
+    interfaces: 
+      - position
+      - velocity
+    joints: 
+      - vention_base_to_wam_left
+      - vention_base_to_wam_right
+
+
+left_arm_position_controller:
+  ros__parameters:
+    joints:
+      - left_j1
+      - left_j2
+      - left_j3
+      - left_j4
+      - left_j5
+      - left_j6
+      - left_j7
+    command_interfaces:
+      - position # WARNING: If using velocity, please note that J5 and J6 gains are not tuned 
+    state_interfaces:
+      - position
+      - velocity
+    gains: # Required because we're controlling a velocity interface
+      left_j1: {p: 5.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      left_j2: {p: 8.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      left_j3: {p: 4.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      left_j4: {p: 2.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      left_j5: {p: 5.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      left_j6: {p: 1.0,  d: 0.0, i: 0.0, i_clamp: 0.5}
+      left_j7: {p: 1.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+    stopped_velocity_tolerance: 0.1
+    open_loop_control: false
+    left_j1:
+      goal: 0.01
+      trajectory: 0.02
+    left_j2:
+      goal: 0.01
+      trajectory: 0.02
+    left_j3:
+      goal: 0.01
+      trajectory: 0.02
+    left_j4:
+      goal: 0.01
+      trajectory: 0.02
+    left_j5:
+      goal: 0.01
+      trajectory: 0.02
+    left_j6:
+      goal: 0.01
+      trajectory: 0.02
+    left_j7:
+      goal: 0.01
+      trajectory: 0.02
+
+left_arm_feedforward_velocity_controller:
+  ros__parameters:
+    joints:
+      - left_j1 
+      - left_j2
+      - left_j3
+      - left_j4
+      - left_j5
+      - left_j6
+      - left_j7
+
+left_hand_effort_controller:
+  ros__parameters:
+    joints:
+      - left_j01
+      - left_j11
+      - left_j21
+      - left_j00
+    command_interfaces:
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+      # Do not use effort as a state interface. Barrett Hand fingers 
+      # are pre-tensioned and hence have non-zero effort when at rest.
+    gains:
+      left_j01: {p: 25.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+      left_j11: {p: 25.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+      left_j21: {p: 25.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+      left_j00: {p: 5.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+    velocity_ff:
+      left_j01: 0.0
+      left_j11: 0.0 
+      left_j21: 0.0
+      left_j00: 0.0
+    stopped_velocity_tolerance: 0.1
+    allow_partial_joints_goal: true
+    open_loop_control: false
+
+right_arm_position_controller:
+  ros__parameters:
+    joints:
+      - right_j1
+      - right_j2
+      - right_j3
+      - right_j4
+      - right_j5
+      - right_j6
+      - right_j7
+    command_interfaces:
+      - position # WARNING: If using velocity, please note that J5 and J6 gains are not tuned 
+    state_interfaces:
+      - position
+      - velocity 
+    gains:
+      right_j1: {p: 4.0,  d: 0.03, i: 0.0, i_clamp: 1.0}
+      right_j2: {p: 4.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      right_j3: {p: 4.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      right_j4: {p: 2.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      right_j5: {p: 2.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      right_j6: {p: 1.5,  d: 0.1, i: 0.0, i_clamp: 0.5}
+      right_j7: {p: 1.5,  d: 0.0, i: 0.0, i_clamp: 1.0}
+    velocity_ff:
+      right_j1: 0.0
+      right_j2: 0.5 
+      right_j3: 0.5
+      right_j4: 0.5 
+      right_j5: 0.5
+      right_j6: 0.5
+      right_j7: 0.5
+    stopped_velocity_tolerance: 0.1
+    allow_partial_joints_goal: false
+    open_loop_control: false
+    right_j1:
+      goal: 0.01
+      trajectory: 0.02
+    right_j2:
+      goal: 0.01
+      trajectory: 0.02
+    right_j3:
+      goal: 0.01
+      trajectory: 0.02
+    right_j4:
+      goal: 0.01
+      trajectory: 0.02
+    right_j5:
+      goal: 0.01
+      trajectory: 0.02
+    right_j6:
+      goal: 0.01
+      trajectory: 0.02
+    right_j7:
+      goal: 0.01
+      trajectory: 0.02
+
+right_arm_feedforward_velocity_controller:
+  ros__parameters:
+    joints:
+      - right_j1 
+      - right_j2
+      - right_j3
+      - right_j4
+      - right_j5
+      - right_j6
+      - right_j7
+
+right_hand_effort_controller:
+  ros__parameters:
+    joints:
+      - right_j01
+      - right_j11
+      - right_j21
+      - right_j00
+    command_interfaces:
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+      # Do not use effort as a state interface. Barrett Hand fingers 
+      # are pre-tensioned and hence have non-zero effort when at rest.
+    gains:
+      right_j01: {p: 25.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+      right_j11: {p: 25.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+      right_j21: {p: 25.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+      right_j00: {p: 5.0,  d: 0.065, i: 0.0, i_clamp: 1.0}
+    velocity_ff:
+      right_j01: 0.0
+      right_j11: 0.0 
+      right_j21: 0.0
+      right_j00: 0.0
+    stopped_velocity_tolerance: 0.1
+    allow_partial_joints_goal: true
+    open_loop_control: false
+
+left_hand_position_controller:
+  ros__parameters:
+    joints:
+      - left_j01
+      - left_j11
+      - left_j21
+      - left_j00
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+right_hand_position_controller:
+  ros__parameters:
+    joints:
+      - right_j01
+      - right_j11
+      - right_j21
+      - right_j00
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+vention_feedforward_controller:
+  ros__parameters:
+    joints:
+    - vention_base_to_wam_right
+    - vention_base_to_wam_left
+
+vention_trajectory_controller:
+  ros__parameters:
+    joints:
+      - vention_base_to_wam_right
+      - vention_base_to_wam_left
+    command_interfaces:
+      - velocity
+    state_interfaces:
+      - position
+      - velocity
+    gains:
+      vention_base_to_wam_right: {p: 1.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+      vention_base_to_wam_left: {p: 1.0,  d: 0.0, i: 0.0, i_clamp: 1.0}
+    open_loop_control: false
+    allow_partial_joints_goal: true
+    constraints:
+      stopped_velocity_tolerance: 0.00001

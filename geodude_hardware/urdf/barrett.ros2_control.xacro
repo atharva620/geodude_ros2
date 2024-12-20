@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="arm_interfaces" params="joint_name sim init_pose">
+    <joint name="${joint_name}">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <command_interface name="effort"/>
+      <state_interface name="position">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">${init_pose}</param>
+        </xacro:if>
+      </state_interface>
+      <state_interface name="velocity">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">0.0</param>
+        </xacro:if>
+      </state_interface>
+      <state_interface name="effort">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">0.0</param>
+        </xacro:if>
+      </state_interface>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="hand_interfaces" params="joint_name sim init_pose">
+    <joint name="${joint_name}">
+      <command_interface name="position"/>
+      <command_interface name="effort"/>
+      <state_interface name="position">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">${init_pose}</param>
+        </xacro:if>
+      </state_interface>
+      <state_interface name="velocity">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">0.0</param>
+        </xacro:if>
+      </state_interface>
+      <state_interface name="effort">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">0.0</param>
+        </xacro:if>
+      </state_interface>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="barrett_hardware_interface" params="name wam_config_file initial_positions_file prefix:=barrett use_gravcomp:=true sim:=none hand:=true arm:=true move_to_initial_joint_position:=false">
+    <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+
+    <ros2_control name="${name}" type="system">
+
+	    <hardware>
+      <xacro:if value="${sim == 'mock'}">
+        <plugin>mock_components/GenericSystem</plugin>
+        <param name="mock_sensor_commands">false</param>
+        <param name="state_following_offset">0.0</param>
+      </xacro:if>
+      <xacro:if value="${sim == 'isaac'}">
+        <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+        <param name="joint_commands_topic">/isaac_joint_commands</param>
+        <param name="joint_states_topic">/isaac_joint_states</param>
+      </xacro:if>
+      <xacro:if value="${sim == 'none'}">
+        <plugin>geodude_hardware/BarrettHW</plugin>
+        <param name="move_to_initial_joint_position">${move_to_initial_joint_position}</param>
+        <param name="wam_config_file">${wam_config_file}</param>
+        <param name="use_gravcomp">${use_gravcomp}</param>
+      </xacro:if>
+      </hardware>
+
+      <!-- Arm DOFs -->
+      <xacro:if value="${arm}">
+        <xacro:arm_interfaces joint_name="${prefix}_j1" sim="${sim}" init_pose="${initial_positions['j1']}" />
+        <xacro:arm_interfaces joint_name="${prefix}_j2" sim="${sim}" init_pose="${initial_positions['j2']}" />
+        <xacro:arm_interfaces joint_name="${prefix}_j3" sim="${sim}" init_pose="${initial_positions['j3']}" />
+        <xacro:arm_interfaces joint_name="${prefix}_j4" sim="${sim}" init_pose="${initial_positions['j4']}" />
+        <xacro:arm_interfaces joint_name="${prefix}_j5" sim="${sim}" init_pose="${initial_positions['j5']}" />
+        <xacro:arm_interfaces joint_name="${prefix}_j6" sim="${sim}" init_pose="${initial_positions['j6']}" />
+        <xacro:arm_interfaces joint_name="${prefix}_j7" sim="${sim}" init_pose="${initial_positions['j7']}" />
+      </xacro:if>
+
+      <!--Finger/Hand DOFs-->
+      <xacro:if value="${hand}">
+        <!-- Proximal Finger Joints -->
+        <xacro:hand_interfaces joint_name="${prefix}_j01" sim="${sim}" init_pose="${initial_positions['j01']}" /> 
+        <xacro:hand_interfaces joint_name="${prefix}_j11" sim="${sim}" init_pose="${initial_positions['j11']}" /> 
+        <xacro:hand_interfaces joint_name="${prefix}_j21" sim="${sim}" init_pose="${initial_positions['j21']}" /> 
+        <!-- Spread Joint -->
+        <xacro:hand_interfaces joint_name="${prefix}_j00" sim="${sim}" init_pose="${initial_positions['j00']}" /> 
+      </xacro:if>
+
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

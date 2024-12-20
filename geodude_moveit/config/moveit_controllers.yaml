@@ -1,0 +1,80 @@
+# MoveIt uses this configuration for controller management
+# TODO: Add Vention Controllers
+
+trajectory_execution:
+  allowed_start_tolerance: 0.02
+  execution_duration_monitoring: false
+  
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - left_arm_position_controller
+    - right_arm_position_controller
+    - left_hand_effort_controller
+    - right_hand_effort_controller
+    - vention_trajectory_controller
+
+  left_arm_position_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - left_j1
+      - left_j2
+      - left_j3
+      - left_j4
+      - left_j5
+      - left_j6
+      - left_j7
+    action_ns: follow_joint_trajectory
+    default: true
+
+  right_arm_position_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - right_j1
+      - right_j2
+      - right_j3
+      - right_j4
+      - right_j5
+      - right_j6
+      - right_j7
+    action_ns: follow_joint_trajectory
+    default: true
+
+  left_hand_effort_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - left_j00
+      - left_j01
+      - left_j11
+      - left_j21
+    action_ns: follow_joint_trajectory
+    default: true
+  
+  right_hand_effort_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - right_j00
+      - right_j01
+      - right_j11
+      - right_j21
+    action_ns: follow_joint_trajectory
+    default: true
+
+  vention_trajectory_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - vention_base_to_wam_right
+      - vention_base_to_wam_left
+    action_ns: follow_joint_trajectory
+    default: true

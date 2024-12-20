@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<library path="geodude_left_arm_moveit_ikfast_plugin">
+  <class name="geodude_left_arm/IKFastKinematicsPlugin" type="geodude_left_arm::IKFastKinematicsPlugin" base_class_type="kinematics::KinematicsBase">
+    <description>IKFast61 plugin for closed-form kinematics of geodude left_arm</description>
+  </class>
+</library>

@@ -1,0 +1,16 @@
+<library path="geodude_hardware">
+  <class name="geodude_hardware/BarrettHW"
+         type="geodude_hardware::BarrettHW"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Interface for controlling 7DOF BarrettWAM arms, with support for BarrettHand and the Force/Torque Sensor.
+    </description>
+  </class>
+  <class name="geodude_hardware/VentionHW"
+         type="geodude_hardware::VentionHW"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Interface for controlling the Vention Lead Screw Actuator.
+    </description>
+  </class>
+</library>

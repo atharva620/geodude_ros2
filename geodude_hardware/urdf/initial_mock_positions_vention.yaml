@@ -1,0 +1,5 @@
+# Default initial positions for geodude's ros2_control fake system
+
+initial_positions:
+  vention_base_to_wam_left: 0.15
+  vention_base_to_wam_right: 0.15

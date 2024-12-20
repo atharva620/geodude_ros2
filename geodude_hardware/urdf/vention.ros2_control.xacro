@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="vention_joint_interfaces" params="joint_name sim init_pose">
+    <joint name="${joint_name}">
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">${init_pose}</param>
+        </xacro:if>
+      </state_interface>
+      <state_interface name="velocity">
+        <xacro:if value="${sim == 'mock'}">
+        <param name="initial_value">0.0</param>
+        </xacro:if>
+      </state_interface>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="vention_hardware_interface" params="name initial_positions_file sim:=none">
+    <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+
+    <ros2_control name="${name}" type="system">
+
+      <hardware>
+      <xacro:if value="${sim == 'none'}">
+        <plugin>geodude_hardware/VentionHW</plugin>
+      </xacro:if>
+      <xacro:if value="${sim == 'mock'}">
+        <plugin>mock_components/GenericSystem</plugin>
+        <param name="mock_sensor_commands">false</param>
+        <param name="state_following_offset">0.0</param>
+      </xacro:if>
+      </hardware>
+      <!-- This order decides the order of command buffers -->
+      <xacro:vention_joint_interfaces joint_name="vention_base_to_wam_right" sim="${sim}" init_pose="${initial_positions['vention_base_to_wam_right']}" />
+      <xacro:vention_joint_interfaces joint_name="vention_base_to_wam_left" sim="${sim}" init_pose="${initial_positions['vention_base_to_wam_left']}" />
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

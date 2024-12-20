@@ -1,0 +1,147 @@
+# Start from docker nvcr.io/nvidia/isaac-sim
+FROM nvcr.io/nvidia/isaac-sim:4.0.0
+
+# Set default RUN shell to bash
+SHELL ["/bin/bash", "-c"]
+
+# Disable interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install ROS 2 humble
+RUN apt update && apt install -y \
+  locales \
+  software-properties-common \
+  curl
+
+# Add universe repository
+RUN add-apt-repository universe
+
+# Set up locale
+RUN locale-gen en_US en_US.UTF-8
+RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
+# Add ROS 2 humble repository
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+RUN apt update && apt install -y \
+  python3-flake8-docstrings \
+  python3-pip \
+  python3-pytest-cov \
+  python3-flake8-blind-except \
+  python3-flake8-builtins \
+  python3-flake8-class-newline \
+  python3-flake8-comprehensions \
+  python3-flake8-deprecated \
+  python3-flake8-import-order \
+  python3-flake8-quotes \
+  python3-pytest-repeat \
+  python3-pytest-rerunfailures \
+  ros-dev-tools
+
+# Install ROS 2 humble
+RUN apt update && apt upgrade -y && apt install -y ros-humble-desktop
+
+# Install ROS 2 humble packages
+RUN apt install -y ros-humble-xacro ros-humble-topic-based-ros2-control
+
+# Source ROS 2 humble
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+
+# Install Orbbec Camera
+RUN apt install -y ros-humble-image-transport ros-humble-image-publisher ros-humble-camera-info-manager* ros-humble-diagnostic-updater
+
+# Install Orbbec SDK
+RUN apt install -y libgflags-dev nlohmann-json3-dev libgoogle-glog-dev
+
+# ----------------------- Install IsaacSim-Ros related things
+# Make a folder for storing git downloads and set it as the working directory
+WORKDIR /app
+
+# Clone the IsaacSim-Ros2 repo
+RUN git clone https://github.com/helen9975/IsaacSim-ros_workspaces.git
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-rosinstall-generator \
+    python3-wstool \
+    build-essential \
+    python3-colcon-common-extensions && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory to the cloned repository
+WORKDIR /app/IsaacSim-ros_workspaces/humble_ws
+
+# Initialize and update rosdep
+RUN rosdep init && rosdep update
+
+RUN apt-get update
+
+# Install ROS dependencies
+RUN rosdep install -i --from-path src --rosdistro humble -y
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+# -------------------------- Set up isaaclab
+WORKDIR /app 
+RUN git clone https://github.com/helen9975/IsaacLab.git
+
+WORKDIR /app/IsaacLab/
+
+# Create a variable for the path to IsaacLab
+ENV ISAACLAB_PATH=/app/IsaacLab
+
+RUN ln -s /isaac-sim _isaac_sim
+
+RUN apt install cmake build-essential
+
+ENV TERM=xterm-256color
+
+# Ensure the script is executable
+RUN chmod +x /app/IsaacLab/isaaclab.sh
+
+# Execute the script with detailed logging
+RUN if [ -x /app/IsaacLab/isaaclab.sh ]; then \
+      /app/IsaacLab/isaaclab.sh --install || (echo "Script execution failed"; exit 1); \
+    else \
+      echo "Script not found or not executable"; exit 1; \
+    fi
+  
+# Switch to /app directory
+WORKDIR /app
+
+# -------------------------- Hardware Interface Install
+
+# Create directory and clone libbarrett
+RUN git clone https://github.com/personalrobotics/libbarrett
+
+# Install dependencies for libbarrett
+RUN cd /app/libbarrett/scripts && ./install_dependencies.sh
+
+# Build and install libbarrett
+RUN cd /app/libbarrett \
+ && mkdir build \
+ && cd build \
+ && cmake .. \
+ && make -j$(nproc) \
+ && sudo make install
+
+# Switch to /app/libbarrett directory
+WORKDIR /app/libbarrett
+
+# Install ROS dependencies and ament clang format
+RUN rosdep install --from-paths src --ignore-src -r -y \
+ && apt-get update \
+ && apt-get install -y ros-humble-ament-cmake-clang-format
+
+# Set CMAKE_PREFIX_PATH environment variable
+ENV CMAKE_PREFIX_PATH=/opt/ros/humble:$CMAKE_PREFIX_PATH
+
+# Install Orbecc SDK
+RUN apt-get install -y ntpdate \
+ && apt install -y ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-moveit
+
+SHELL ["/bin/bash", "-c", "source /opt/ros/humble/setup.bash && exec /bin/bash"]
